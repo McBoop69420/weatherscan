@@ -1,5 +1,5 @@
-var api_key = "YOUR_WEATHER_API_KEY";
-var map_key = "YOUR_MAPBOX_API_KEY";
+var api_key = "";
+var map_key = "";
 
 var apperanceSettings = {
   providerName: "Mist Digital Cable",
