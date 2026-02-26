@@ -96,31 +96,55 @@ function formatSportGame(event) {
     }
 }
 
+var sportsGames = [];
+var sportsGameIdx = 0;
+var sportsRotateInterval = null;
+var leagueBadgeColors = {
+    'NFL': '#013369',
+    'NBA': '#C9082A',
+    'MLB': '#002D72',
+    'NHL': '#041E42',
+    'EPL': '#3D195B',
+};
+
+function showSportsGame(idx) {
+    var game = sportsGames[idx];
+    var $badge = $('#crawl .sports-ticker .sports-badge');
+    var $score = $('#crawl .sports-ticker .sports-score');
+    var $counter = $('#crawl .sports-ticker .sports-counter');
+    $score.fadeOut(200, function() {
+        $badge.text(game.league);
+        $badge.css('background', leagueBadgeColors[game.league] || '#c8102e');
+        $score.text(game.score);
+        $counter.text((idx + 1) + ' / ' + sportsGames.length);
+        $score.fadeIn(200);
+    });
+}
+
 function sportsTickerStart() {
     $.getJSON('/sports', function(leagues) {
-        var segments = [];
+        sportsGames = [];
         leagues.forEach(function(leagueData) {
             if (!leagueData.events || leagueData.events.length === 0) return;
-            var games = leagueData.events
-                .map(formatSportGame)
-                .filter(function(s) { return s !== ''; })
-                .join('     \u25AA     ');
-            if (games) {
-                segments.push(leagueData.league + ':   ' + games);
-            }
+            leagueData.events.forEach(function(event) {
+                var score = formatSportGame(event);
+                if (score) sportsGames.push({ league: leagueData.league, score: score });
+            });
         });
-        if (segments.length === 0) {
-            $('#crawl .sports-ticker').fadeOut(0);
+        if (sportsGames.length === 0) {
+            $('#crawl .sports-ticker').fadeOut(300);
             return;
         }
-        var tickerText = segments.join('          \u25C6          ');
-        var $crawl = $('#crawl .sports-ticker .crawltext');
-        $crawl.marquee('destroy');
-        $crawl.text(tickerText);
+        sportsGameIdx = 0;
         $('#crawl .sports-ticker').fadeIn(0);
-        $crawl.marquee({ speed: 100, delayBeforeStart: 500, pauseOnHover: false });
+        showSportsGame(sportsGameIdx);
+        if (sportsRotateInterval) clearInterval(sportsRotateInterval);
+        sportsRotateInterval = setInterval(function() {
+            sportsGameIdx = (sportsGameIdx + 1) % sportsGames.length;
+            showSportsGame(sportsGameIdx);
+        }, 5000);
     }).fail(function() {
-        $('#crawl .sports-ticker').fadeOut(0);
+        $('#crawl .sports-ticker').fadeOut(300);
     });
 }
 

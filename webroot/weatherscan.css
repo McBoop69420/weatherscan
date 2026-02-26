@@ -2640,28 +2640,28 @@ button {
   text-align: center;
   line-height: 130px;
 }
-.sports-ticker .sports-crawl {
+.sports-ticker .sports-score {
   position: absolute;
-  left: 160px;
+  left: 200px;
   top: 0;
-  width: 1460px;
+  right: 120px;
   height: 130px;
-  overflow: hidden;
-  line-height: 130px;
-}
-.sports-ticker .sports-crawl .crawltext {
-  font-size: 44px;
-  white-space: nowrap;
+  font-size: 54px;
   color: white;
   font-family: "Berthold Akzidenz Grotesk BE";
-}
-.sports-ticker .sports-crawl .js-marquee-wrapper,
-.sports-ticker .sports-crawl .js-marquee {
   line-height: 130px;
-  font-size: 44px;
+  white-space: nowrap;
+  text-shadow: 1px 1px 4px #000;
+  letter-spacing: 2px;
+}
+.sports-ticker .sports-counter {
+  position: absolute;
+  right: 20px;
+  bottom: 8px;
+  font-size: 22px;
+  color: rgba(255,255,255,0.45);
   font-family: "Berthold Akzidenz Grotesk BE";
-  text-shadow: 1px 1px 0 #000;
-  transform: none;
+  letter-spacing: 1px;
 }
 
 #drag-region {
