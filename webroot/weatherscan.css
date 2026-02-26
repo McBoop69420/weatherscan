@@ -641,27 +641,27 @@ button {
 }
 #date-time * {
   font-family: "Berthold Akzidenz Grotesk BE";
-  color: #e8e8e8;
-  font-weight: 500;
+  color: #ffffff;
+  font-weight: 700;
   font-style: normal;
   font-stretch: expanded;
-  font-size: 40px;
+  font-size: 52px;
 }
 #date-time {
   position: absolute;
   font-family: "Berthold Akzidenz Grotesk BE";
-  color: #e8e8e8;
-  font-weight: 500;
+  color: #ffffff;
+  font-weight: 700;
   font-style: normal;
   font-stretch: expanded;
-  font-size: 40px;
-  bottom: 80px;
+  font-size: 52px;
+  bottom: 140px;
   right: 123px;
   text-align: right;
-  z-index: 10;
-  text-shadow: 2px 2px #000;
+  z-index: 25;
+  text-shadow: 2px 2px 6px #000, 0 0 12px rgba(0,0,0,0.8);
   letter-spacing: 2.5px;
-  width: 400px;
+  width: 500px;
 }
 #time {
   position: absolute;
