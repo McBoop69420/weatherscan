@@ -84,15 +84,52 @@ function formatSportGame(event) {
         var away = comp.competitors.find(function(c) { return c.homeAway === 'away'; });
         var hAbbr = home.team.abbreviation;
         var aAbbr = away.team.abbreviation;
-        if (status.type.state === 'pre') {
-            return aAbbr + ' vs ' + hAbbr + '  ' + status.type.shortDetail;
+        var hRec = home.records && home.records[0] ? '(' + home.records[0].summary + ')' : '';
+        var aRec = away.records && away.records[0] ? '(' + away.records[0].summary + ')' : '';
+
+        var broadcast = '';
+        if (comp.broadcasts && comp.broadcasts.length > 0) {
+            var nat = comp.broadcasts.find(function(b) { return b.market === 'national'; });
+            if (nat && nat.names && nat.names[0]) broadcast = nat.names[0];
         }
-        var hScore = home.score !== undefined ? home.score : '0';
-        var aScore = away.score !== undefined ? away.score : '0';
-        var detail = status.type.completed ? 'FINAL' : (status.type.shortDetail || 'LIVE');
-        return aAbbr + ' ' + aScore + '  ' + hAbbr + ' ' + hScore + '  ' + detail;
+        var venue = comp.venue && comp.venue.fullName ? comp.venue.fullName : '';
+
+        var scoreLine, detailLine;
+
+        if (status.type.state === 'pre') {
+            scoreLine = aAbbr + ' ' + aRec + '  vs  ' + hAbbr + ' ' + hRec + '   \u00B7   ' + status.type.shortDetail;
+            var pre = [];
+            if (broadcast) pre.push(broadcast);
+            if (venue) pre.push(venue);
+            detailLine = pre.join('  \u00B7  ');
+        } else {
+            var hScore = home.score || '0';
+            var aScore = away.score || '0';
+            var gameStatus = status.type.completed ? 'FINAL' : (status.type.shortDetail || 'LIVE');
+            scoreLine = aAbbr + ' ' + aRec + '  ' + aScore + '    ' + hAbbr + ' ' + hRec + '  ' + hScore + '   ' + gameStatus;
+
+            var sub = [];
+            if (status.type.completed) {
+                var topPts = null;
+                [away, home].forEach(function(team) {
+                    if (!team.leaders) return;
+                    var ptsCat = team.leaders.find(function(l) { return l.name === 'points'; });
+                    if (ptsCat && ptsCat.leaders && ptsCat.leaders[0]) {
+                        var l = ptsCat.leaders[0];
+                        if (!topPts || l.value > topPts.value) {
+                            topPts = { name: l.athlete.shortName, value: l.value, display: l.displayValue };
+                        }
+                    }
+                });
+                if (topPts) sub.push('Top: ' + topPts.name + '  ' + topPts.display + ' PTS');
+            }
+            if (broadcast) sub.push(broadcast);
+            detailLine = sub.join('  \u00B7  ');
+        }
+
+        return { score: scoreLine, detail: detailLine };
     } catch(e) {
-        return '';
+        return null;
     }
 }
 
@@ -109,15 +146,17 @@ var leagueBadgeColors = {
 
 function showSportsGame(idx) {
     var game = sportsGames[idx];
-    var $badge = $('#crawl .sports-ticker .sports-badge');
-    var $score = $('#crawl .sports-ticker .sports-score');
+    var $badge  = $('#crawl .sports-ticker .sports-badge');
+    var $score  = $('#crawl .sports-ticker .sports-score');
+    var $detail = $('#crawl .sports-ticker .sports-detail');
     var $counter = $('#crawl .sports-ticker .sports-counter');
-    $score.fadeOut(200, function() {
+    $score.add($detail).fadeOut(200, function() {
         $badge.text(game.league);
         $badge.css('background', leagueBadgeColors[game.league] || '#c8102e');
         $score.text(game.score);
+        $detail.text(game.detail);
         $counter.text((idx + 1) + ' / ' + sportsGames.length);
-        $score.fadeIn(200);
+        $score.add($detail).fadeIn(200);
     });
 }
 
@@ -127,8 +166,8 @@ function sportsTickerStart() {
         leagues.forEach(function(leagueData) {
             if (!leagueData.events || leagueData.events.length === 0) return;
             leagueData.events.forEach(function(event) {
-                var score = formatSportGame(event);
-                if (score) sportsGames.push({ league: leagueData.league, score: score });
+                var g = formatSportGame(event);
+                if (g) sportsGames.push({ league: leagueData.league, score: g.score, detail: g.detail });
             });
         });
         if (sportsGames.length === 0) {

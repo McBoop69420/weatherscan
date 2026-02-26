@@ -2643,23 +2643,38 @@ button {
 .sports-ticker .sports-score {
   position: absolute;
   left: 200px;
-  top: 0;
+  top: 8px;
   right: 120px;
-  height: 130px;
-  font-size: 54px;
+  height: 72px;
+  font-size: 50px;
   color: white;
   font-family: "Berthold Akzidenz Grotesk BE";
-  line-height: 130px;
+  line-height: 72px;
   white-space: nowrap;
+  overflow: hidden;
   text-shadow: 1px 1px 4px #000;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
+}
+.sports-ticker .sports-detail {
+  position: absolute;
+  left: 200px;
+  top: 86px;
+  right: 120px;
+  height: 36px;
+  font-size: 28px;
+  color: rgba(255,255,255,0.7);
+  font-family: "Berthold Akzidenz Grotesk BE";
+  line-height: 36px;
+  white-space: nowrap;
+  overflow: hidden;
+  letter-spacing: 1px;
 }
 .sports-ticker .sports-counter {
   position: absolute;
   right: 20px;
   bottom: 8px;
   font-size: 22px;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.4);
   font-family: "Berthold Akzidenz Grotesk BE";
   letter-spacing: 1px;
 }
