@@ -2618,6 +2618,52 @@ button {
   width: 1620px !important;
 }
 
+.sports-ticker {
+  position: absolute;
+  width: 1620px;
+  height: 130px;
+  top: 950px;
+  left: 0;
+  z-index: 20;
+  background: #06152a;
+}
+.sports-ticker .sports-badge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 160px;
+  height: 130px;
+  background: #c8102e;
+  font-size: 26px;
+  letter-spacing: 3px;
+  color: white;
+  text-align: center;
+  line-height: 130px;
+}
+.sports-ticker .sports-crawl {
+  position: absolute;
+  left: 160px;
+  top: 0;
+  width: 1460px;
+  height: 130px;
+  overflow: hidden;
+  line-height: 130px;
+}
+.sports-ticker .sports-crawl .crawltext {
+  font-size: 44px;
+  white-space: nowrap;
+  color: white;
+  font-family: "Berthold Akzidenz Grotesk BE";
+}
+.sports-ticker .sports-crawl .js-marquee-wrapper,
+.sports-ticker .sports-crawl .js-marquee {
+  line-height: 130px;
+  font-size: 44px;
+  font-family: "Berthold Akzidenz Grotesk BE";
+  text-shadow: 1px 1px 0 #000;
+  transform: none;
+}
+
 #drag-region {
   -webkit-app-region: drag;
   height: 30px;

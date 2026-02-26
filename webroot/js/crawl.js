@@ -76,37 +76,55 @@ function crawlCheck() {
         }
     }
 }
-var crawlIndex = 0;
-function adCrawl(idx) {
-    //do not run ads during alerts
-    if (alertCrawlActive) {
-        adCrawlActive = false;
-        $('#crawl .ad').fadeOut(0);
-        $('#crawl .ad .ad-crawl .crawltext').text("");
-        $('#crawl .ad .ad-crawl .crawltext').marquee("destroy");
-    }
-    else {
-        if (adCrawlActive) {
-            adCrawlActive = false;
-            $('#crawl .ad').fadeOut(0);
-            $('#crawl .ad .ad-crawl .crawltext').text("");
-            $('#crawl .ad .ad-crawl .crawltext').marquee("destroy");
-        } else {
-            adCrawlActive = true;
-            $('#crawl .ad').fadeIn(0);
-            $('#crawl .ad .ad-crawl .crawltext').text(apperanceSettings.adMessage[idx]);
-            $('#crawl .ad .ad-crawl .crawltext').marquee({ speed: 120, delayBeforeStart: 1000, pauseOnHover: false });
+function formatSportGame(event) {
+    try {
+        var comp = event.competitions[0];
+        var status = comp.status;
+        var home = comp.competitors.find(function(c) { return c.homeAway === 'home'; });
+        var away = comp.competitors.find(function(c) { return c.homeAway === 'away'; });
+        var hAbbr = home.team.abbreviation;
+        var aAbbr = away.team.abbreviation;
+        if (status.type.state === 'pre') {
+            return aAbbr + ' vs ' + hAbbr + '  ' + status.type.shortDetail;
         }
+        var hScore = home.score !== undefined ? home.score : '0';
+        var aScore = away.score !== undefined ? away.score : '0';
+        var detail = status.type.completed ? 'FINAL' : (status.type.shortDetail || 'LIVE');
+        return aAbbr + ' ' + aScore + '  ' + hAbbr + ' ' + hScore + '  ' + detail;
+    } catch(e) {
+        return '';
     }
-}
-function crawlKickOff() {
-    if (apperanceSettings.enableCrawl) {
-        setInterval(() => {
-            if (adCrawlActive) { crawlIndex = (crawlIndex + 1) % apperanceSettings.adMessage.length; }
-            adCrawl(crawlIndex)
-        }, apperanceSettings.crawlInterval)
-    } //letting ads run for 100 seconds then disabling them for 100 seconds
 }
 
-//this could be a setting to add to appearance settings
-//like say someone wants to let the ad run for 5 minutes
+function sportsTickerStart() {
+    $.getJSON('/sports', function(leagues) {
+        var segments = [];
+        leagues.forEach(function(leagueData) {
+            if (!leagueData.events || leagueData.events.length === 0) return;
+            var games = leagueData.events
+                .map(formatSportGame)
+                .filter(function(s) { return s !== ''; })
+                .join('     \u25AA     ');
+            if (games) {
+                segments.push(leagueData.league + ':   ' + games);
+            }
+        });
+        if (segments.length === 0) {
+            $('#crawl .sports-ticker').fadeOut(0);
+            return;
+        }
+        var tickerText = segments.join('          \u25C6          ');
+        var $crawl = $('#crawl .sports-ticker .crawltext');
+        $crawl.marquee('destroy');
+        $crawl.text(tickerText);
+        $('#crawl .sports-ticker').fadeIn(0);
+        $crawl.marquee({ speed: 100, delayBeforeStart: 500, pauseOnHover: false });
+    }).fail(function() {
+        $('#crawl .sports-ticker').fadeOut(0);
+    });
+}
+
+function crawlKickOff() {
+    sportsTickerStart();
+    setInterval(sportsTickerStart, 5 * 60 * 1000);
+}

@@ -21,3 +21,24 @@ app.get('/airports', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch airport data' });
   }
 })
+
+app.get('/sports', async (req, res) => {
+  const leagues = [
+    { name: 'NFL', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard' },
+    { name: 'NBA', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard' },
+    { name: 'MLB', url: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard' },
+    { name: 'NHL', url: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard' },
+    { name: 'EPL', url: 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard' },
+  ];
+  const results = [];
+  for (const league of leagues) {
+    try {
+      const response = await fetch(league.url);
+      const data = await response.json();
+      results.push({ league: league.name, events: data.events || [] });
+    } catch (err) {
+      results.push({ league: league.name, events: [] });
+    }
+  }
+  res.json(results);
+})
