@@ -1233,10 +1233,13 @@ function slideKickOff() {
     "minicore": "Your Local Forecast",
     "intro": "intro",
     "airport": "Airport",
+    "airportonly": "Airport",
     "golf": "Golf",
     "spanish": "Spanish Forecast",
     "health": "Health",
     "extralocal": "Forecast For " + extraCityName,
+    "main": "Your Local Forecast",
+    "nearby": "Nearby Cities",
   };
 } //end of slideKickOff() function
 function showSlides() {
