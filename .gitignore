@@ -137,3 +137,6 @@ dist
 
 # Add .vscode folder
 .vscode/
+
+# macOS metadata
+.DS_Store
