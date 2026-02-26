@@ -2617,3 +2617,14 @@ button {
 .mapboxgl-canvas {
   width: 1620px !important;
 }
+
+#drag-region {
+  -webkit-app-region: drag;
+  height: 30px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  background: transparent; /* You can change this to rgba(0,0,0,0.1) to test */
+}

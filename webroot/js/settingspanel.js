@@ -140,12 +140,12 @@ function startButton() {
 }
 if (apperanceSettings.skipSettings == true) {
   //if (getCookie("customPackage") == "false") {
-    slideSettings.order[0].slideLineup.push(forecastPackage);
+    // Custom order: Main -> Airport -> Extra -> Health -> Nearby
+    slideSettings.order[0].slideLineup.push(mainPackage);
+    slideSettings.order[0].slideLineup.push(airportOnlyPackage);
     slideSettings.order[0].slideLineup.push(extraLocalPackage);
-    slideSettings.order[0].slideLineup.push(spanishForecastPackage);
-    slideSettings.order[0].slideLineup.push(golfPackage);
     slideSettings.order[0].slideLineup.push(healthPackage);
-    slideSettings.order[0].slideLineup.push(airportPackage);
+    slideSettings.order[0].slideLineup.push(nearbyCitiesPackage);
   //}
   setTimeout(() => {
     locationJS();

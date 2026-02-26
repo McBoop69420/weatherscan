@@ -8,6 +8,8 @@ $(function(){
 
 		if (apperanceSettings.aspectRatio == 4/3) {
 			$('body').css("transform", "scale(88.88%, 100%)")
+		} else if (apperanceSettings.aspectRatio == 16/9) {
+			$('body').css("transform", "scale(118.52%, 100%)")
 		}
 
 //calls rescale when window resizes

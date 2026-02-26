@@ -53,6 +53,10 @@
     <link href="utilities/maplibre-gl.css" rel="stylesheet"/>
   </head>
   <body>
+    <button id="mute-button" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
+  Mute
+</button>
+    <div id="drag-region"></div>
     <script type="text/javascript" src="utilities/jquery-3.7.1.min.js"></script>
     <script type="text/javascript" src="js/jplayer/jquery.jplayer.min.js"></script>
     <script src="/js/date_fns.min.js"></script>
@@ -1158,5 +1162,18 @@
     </div>
 
     <div id="provider"><img src="images/tvproviders/Mist.png" /></div>
+   <script>
+  const muteButton = document.getElementById('mute-button');
+  let isMuted = false;
+
+  muteButton.addEventListener('click', () => {
+    const mediaElements = document.querySelectorAll('audio, video');
+    mediaElements.forEach(el => {
+      el.muted = !isMuted;
+    });
+    isMuted = !isMuted;
+    muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
+  });
+</script>
   </body>
 </html>
