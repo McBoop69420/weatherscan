@@ -20,7 +20,8 @@ The application runs at `http://localhost:8080` after starting.
 ### Backend (`app.js`)
 - Express server on port 8080, binds to `0.0.0.0`
 - Serves static files from `webroot/`
-- Single API endpoint: `GET /airports` — proxies FAA airport delay data from `nasstatus.faa.gov` (needed to avoid CORS issues)
+- `GET /airports` — proxies FAA airport delay data from `nasstatus.faa.gov` (CORS workaround)
+- `GET /sports` — proxies ESPN scoreboard API for NFL, NBA, MLB, NHL, EPL; filters to today's games by ET date
 
 ### Frontend (`webroot/`)
 
@@ -31,10 +32,11 @@ The application runs at `http://localhost:8080` after starting.
 4. `js/settingspanel.js` — setup wizard UI
 5. `js/radar.js` — radar map init
 6. `js/slides.js` — `slidePrograms` object + `showSlides()` engine
-7. `js/crawl.js` — alert/ad crawl
-8. `js/main.js` — window scaling on resize
-9. `js/data.js` — `weatherData` object (empty schema)
-10. `js/audio.js` — `AudioManager` class
+7. `js/map.js` — map utility helpers
+8. `js/crawl.js` — alert/ad crawl
+9. `js/main.js` — window scaling on resize
+10. `js/data.js` — `weatherData` object (empty schema)
+11. `js/audio.js` — `AudioManager` class
 
 ### Startup Sequence
 1. Page loads; if `apperanceSettings.skipSettings == false`, the settings panel wizard runs first
@@ -78,10 +80,17 @@ Configure in `webroot/js/config.js` (lines 1–2):
 - `map_key` — mapbox.com API key
 
 ### weatherscanPOP/
-A secondary variant of the project (separate `app.js` + `webroot/`) with its own `package.json`. Runs independently on port 8080. Shares the same architecture but is a distinct build.
+A secondary variant of the project (separate `app.js` + `webroot/`) with its own `package.json`. Runs independently on port 8080 — cannot run simultaneously with the main project. Shares the same architecture but is a distinct build.
+
+### Dependencies Note
+`node-fetch` is pinned to v2 (`"node-fetch": "^2.7.0"`) — v3 uses ESM and will break `require()` in `app.js`. If airport data fails, run `npm i node-fetch@2` from the project root.
 
 ### Electron Wrapper (`electron-wrapper/`)
-Optional desktop wrapper. Not part of the core web app.
+Optional desktop wrapper. Loads `http://localhost:8080` in a frameless 1920×1080 always-on-top window. Start the Express server first, then from `electron-wrapper/`:
+```bash
+npm install
+npm start  # electron .
+```
 
 ## Development TODO
 

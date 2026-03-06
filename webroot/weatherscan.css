@@ -2643,13 +2643,13 @@ button {
 .sports-ticker .sports-score {
   position: absolute;
   left: 200px;
-  top: 8px;
+  top: 0;
   right: 120px;
-  height: 72px;
-  font-size: 50px;
+  height: 130px;
+  font-size: 62px;
   color: white;
   font-family: "Berthold Akzidenz Grotesk BE";
-  line-height: 72px;
+  line-height: 130px;
   white-space: nowrap;
   overflow: hidden;
   text-shadow: 1px 1px 4px #000;
@@ -2658,24 +2658,60 @@ button {
 .sports-ticker .sports-detail {
   position: absolute;
   left: 200px;
-  top: 86px;
+  bottom: 10px;
   right: 120px;
-  height: 36px;
-  font-size: 28px;
+  height: 44px;
+  font-size: 21px;
   color: rgba(255,255,255,0.7);
   font-family: "Berthold Akzidenz Grotesk BE";
-  line-height: 36px;
+  line-height: 22px;
   white-space: nowrap;
   overflow: hidden;
   letter-spacing: 1px;
+  text-align: right;
 }
 .sports-ticker .sports-counter {
-  position: absolute;
-  right: 20px;
-  bottom: 8px;
-  font-size: 22px;
-  color: rgba(255,255,255,0.4);
-  font-family: "Berthold Akzidenz Grotesk BE";
+  display: none;
+}
+.sports-ticker .sports-badge .league-logo {
+  height: 90px;
+  width: auto;
+  vertical-align: middle;
+  filter: drop-shadow(1px 1px 3px rgba(0,0,0,0.5));
+}
+.sports-ticker .sports-score .sport-logo {
+  height: 100px;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 8px;
+  background: white;
+  border-radius: 50%;
+  padding: 6px;
+}
+.sports-ticker .sports-score .sport-abbr {
+  font-size: 62px;
+  vertical-align: middle;
+}
+.sports-ticker .sports-score .sport-rec {
+  font-size: 34px;
+  color: rgba(255,255,255,0.6);
+  vertical-align: middle;
+  margin-right: 12px;
+}
+.sports-ticker .sports-score .sport-score-num {
+  font-size: 62px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.sports-ticker .sports-score .sport-vs {
+  font-size: 44px;
+  color: rgba(255,255,255,0.6);
+  vertical-align: middle;
+}
+.sports-ticker .sports-score .sport-status {
+  font-size: 42px;
+  color: rgba(255,255,255,0.75);
+  vertical-align: middle;
   letter-spacing: 1px;
 }
 

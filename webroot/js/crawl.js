@@ -76,14 +76,22 @@ function crawlCheck() {
         }
     }
 }
+function teamLogoChip(team, rec) {
+    var logo = team.logo || '';
+    var abbr = team.abbreviation || '';
+    var img = logo
+        ? '<img class="sport-logo" src="' + logo + '" alt="' + abbr + '">'
+        : '<span class="sport-abbr">' + abbr + '</span>';
+    var recStr = rec ? ' <span class="sport-rec">' + rec + '</span>' : '';
+    return img + recStr;
+}
+
 function formatSportGame(event) {
     try {
         var comp = event.competitions[0];
         var status = comp.status;
         var home = comp.competitors.find(function(c) { return c.homeAway === 'home'; });
         var away = comp.competitors.find(function(c) { return c.homeAway === 'away'; });
-        var hAbbr = home.team.abbreviation;
-        var aAbbr = away.team.abbreviation;
         var hRec = home.records && home.records[0] ? '(' + home.records[0].summary + ')' : '';
         var aRec = away.records && away.records[0] ? '(' + away.records[0].summary + ')' : '';
 
@@ -94,19 +102,20 @@ function formatSportGame(event) {
         }
         var venue = comp.venue && comp.venue.fullName ? comp.venue.fullName : '';
 
-        var scoreLine, detailLine;
+        var scoreHTML, detailLine;
 
         if (status.type.state === 'pre') {
-            scoreLine = aAbbr + ' ' + aRec + '  vs  ' + hAbbr + ' ' + hRec + '   \u00B7   ' + status.type.shortDetail;
+            scoreHTML = teamLogoChip(away.team, aRec) + '&nbsp;&nbsp;<span class="sport-vs">vs</span>&nbsp;&nbsp;' + teamLogoChip(home.team, hRec) + '&nbsp;&nbsp;&nbsp;<span class="sport-status">\u00B7&nbsp;&nbsp;' + status.type.shortDetail.replace(/^[\d\/]+ - /, '').replace(/\s+[A-Z]{2,4}$/, '') + '</span>';
             var pre = [];
             if (broadcast) pre.push(broadcast);
             if (venue) pre.push(venue);
-            detailLine = pre.join('  \u00B7  ');
+            detailLine = pre.join('<br>');
         } else {
             var hScore = home.score || '0';
             var aScore = away.score || '0';
             var gameStatus = status.type.completed ? 'FINAL' : (status.type.shortDetail || 'LIVE');
-            scoreLine = aAbbr + ' ' + aRec + '  ' + aScore + '    ' + hAbbr + ' ' + hRec + '  ' + hScore + '   ' + gameStatus;
+            var live = !status.type.completed;
+            scoreHTML = teamLogoChip(away.team, live ? '' : aRec) + ' <span class="sport-score-num">' + aScore + '</span>&nbsp;&nbsp;&nbsp;&nbsp;' + teamLogoChip(home.team, live ? '' : hRec) + ' <span class="sport-score-num">' + hScore + '</span>&nbsp;&nbsp;&nbsp;<span class="sport-status">' + gameStatus + '</span>';
 
             var sub = [];
             if (status.type.completed) {
@@ -124,10 +133,10 @@ function formatSportGame(event) {
                 if (topPts) sub.push('Top: ' + topPts.name + '  ' + topPts.display + ' PTS');
             }
             if (broadcast) sub.push(broadcast);
-            detailLine = sub.join('  \u00B7  ');
+            detailLine = sub.join('<br>');
         }
 
-        return { score: scoreLine, detail: detailLine };
+        return { score: scoreHTML, detail: detailLine };
     } catch(e) {
         return null;
     }
@@ -136,6 +145,13 @@ function formatSportGame(event) {
 var sportsGames = [];
 var sportsGameIdx = 0;
 var sportsRotateInterval = null;
+var leagueLogos = {
+    'NFL': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nfl.png',
+    'NBA': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nba.png',
+    'MLB': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/mlb.png',
+    'NHL': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nhl.png',
+    'EPL': 'https://a.espncdn.com/i/leaguelogos/soccer/500-dark/23.png',
+};
 var leagueBadgeColors = {
     'NFL': '#013369',
     'NBA': '#C9082A',
@@ -151,10 +167,15 @@ function showSportsGame(idx) {
     var $detail = $('#crawl .sports-ticker .sports-detail');
     var $counter = $('#crawl .sports-ticker .sports-counter');
     $score.add($detail).fadeOut(200, function() {
-        $badge.text(game.league);
         $badge.css('background', leagueBadgeColors[game.league] || '#c8102e');
-        $score.text(game.score);
-        $detail.text(game.detail);
+        var logoUrl = leagueLogos[game.league] || game.leagueLogo;
+        if (logoUrl) {
+            $badge.html('<img class="league-logo" src="' + logoUrl + '" alt="' + game.league + '">');
+        } else {
+            $badge.text(game.league);
+        }
+        $score.html(game.score);
+        $detail.html(game.detail);
         $counter.text((idx + 1) + ' / ' + sportsGames.length);
         $score.add($detail).fadeIn(200);
     });
@@ -167,7 +188,7 @@ function sportsTickerStart() {
             if (!leagueData.events || leagueData.events.length === 0) return;
             leagueData.events.forEach(function(event) {
                 var g = formatSportGame(event);
-                if (g) sportsGames.push({ league: leagueData.league, score: g.score, detail: g.detail });
+                if (g) sportsGames.push({ league: leagueData.league, leagueLogo: leagueData.logo || null, score: g.score, detail: g.detail });
             });
         });
         if (sportsGames.length === 0) {

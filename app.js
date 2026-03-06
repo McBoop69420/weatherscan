@@ -36,7 +36,8 @@ app.get('/sports', async (req, res) => {
     try {
       const response = await fetch(league.url);
       const data = await response.json();
-      results.push({ league: league.name, events: data.events || [] });
+      const logo = data.leagues && data.leagues[0] && data.leagues[0].logos && data.leagues[0].logos[0] ? data.leagues[0].logos[0].href : null;
+      results.push({ league: league.name, logo, events: data.events || [] });
     } catch (err) {
       results.push({ league: league.name, events: [] });
     }
