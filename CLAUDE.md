@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Weatherscan Local XL is a web-based recreation of "Weatherscan Local" from The Weather Channel. It's a full-stack application with a Node.js/Express backend and HTML/CSS/JavaScript frontend that displays weather data in a broadcast-style slide presentation.
 
+Best used with mainland United States locations. Optimized for Google Chrome. Online demo: `local.weatherscan.net`
+
 ## Commands
 
 ```bash
@@ -48,7 +50,7 @@ The application runs at `http://localhost:8080` after starting.
 - `showSlides()` — reads `slideSettings.order` array, iterates through packages/slides sequentially using `idx` counter
 - Each slide function calls `slideCallBack()` when done, which increments `idx` and calls `showSlides()` again
 - `slideLength` (default 10000ms) is the base unit; some slides use `slideLength * 2`
-- `slideDivs` maps function names to their CSS selector strings
+- `slideDivs` maps function names to their CSS selector strings — note: `extraDayDesc` and `extraExtendedForecast` entries are missing the leading `.` (existing quirk in the source)
 
 ### Slide Package Configuration (`js/config.js`)
 Slide packages are arrays of `{function: "slideFunctionName"}` objects grouped under a `group` name. The `slideSettings.order` array controls which packages play and in what order. Defined packages:

@@ -17,7 +17,10 @@ var slideSettings = {//Don't change this
     {slideLineup: [
         {group: "intro", slides: [
           { function: "introSlide" },
-          { function: "providerSlide" },
+        ]},
+        {group: "sports", slides: [
+          { function: "upNext" },
+          { function: "sportsScoreboard" },
         ]},
       ]},
   ],
@@ -105,4 +108,9 @@ var airportOnlyPackage = {group: "airportonly", slides: [
 var nearbyCitiesPackage = {group: "nearby", slides: [
   { function: "upNext" },
   { function: "nearbyCities" },
+]}
+
+var sportsPackage = {group: "sports", slides: [
+  { function: "upNext" },
+  { function: "sportsScoreboard" },
 ]}

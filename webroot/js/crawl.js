@@ -76,12 +76,13 @@ function crawlCheck() {
         }
     }
 }
-function teamLogoChip(team, rec) {
+function teamLogoChip(team, rec, rank) {
     var logo = team.logo || '';
     var abbr = team.abbreviation || '';
+    var rankStr = (rank && rank <= 25) ? '<span class="sport-rank">#' + rank + '</span>' : '';
     var img = logo
-        ? '<img class="sport-logo" src="' + logo + '" alt="' + abbr + '">'
-        : '<span class="sport-abbr">' + abbr + '</span>';
+        ? rankStr + '<img class="sport-logo" src="' + logo + '" alt="' + abbr + '">'
+        : '<span class="sport-abbr">' + rankStr + abbr + '</span>';
     var recStr = rec ? ' <span class="sport-rec">' + rec + '</span>' : '';
     return img + recStr;
 }
@@ -90,10 +91,13 @@ function formatSportGame(event) {
     try {
         var comp = event.competitions[0];
         var status = comp.status;
-        var home = comp.competitors.find(function(c) { return c.homeAway === 'home'; });
-        var away = comp.competitors.find(function(c) { return c.homeAway === 'away'; });
+        var home = comp.competitors.find(function(c) { return c.homeAway === 'home'; }) || comp.competitors[0];
+        var away = comp.competitors.find(function(c) { return c.homeAway === 'away'; }) || comp.competitors[1];
+        if (!home || !away) return null;
         var hRec = home.records && home.records[0] ? '(' + home.records[0].summary + ')' : '';
         var aRec = away.records && away.records[0] ? '(' + away.records[0].summary + ')' : '';
+        var hRank = home.curatedRank && home.curatedRank.current <= 25 ? home.curatedRank.current : null;
+        var aRank = away.curatedRank && away.curatedRank.current <= 25 ? away.curatedRank.current : null;
 
         var broadcast = '';
         if (comp.broadcasts && comp.broadcasts.length > 0) {
@@ -105,7 +109,7 @@ function formatSportGame(event) {
         var scoreHTML, detailLine;
 
         if (status.type.state === 'pre') {
-            scoreHTML = teamLogoChip(away.team, aRec) + '&nbsp;&nbsp;<span class="sport-vs">vs</span>&nbsp;&nbsp;' + teamLogoChip(home.team, hRec) + '&nbsp;&nbsp;&nbsp;<span class="sport-status">\u00B7&nbsp;&nbsp;' + status.type.shortDetail.replace(/^[\d\/]+ - /, '').replace(/\s+[A-Z]{2,4}$/, '') + '</span>';
+            scoreHTML = teamLogoChip(away.team, aRec, aRank) + '&nbsp;&nbsp;<span class="sport-vs">vs</span>&nbsp;&nbsp;' + teamLogoChip(home.team, hRec, hRank) + '&nbsp;&nbsp;&nbsp;<span class="sport-status">\u00B7&nbsp;&nbsp;' + status.type.shortDetail.replace(/^[\d\/]+ - /, '').replace(/\s+[A-Z]{2,4}$/, '') + '</span>';
             var pre = [];
             if (broadcast) pre.push(broadcast);
             if (venue) pre.push(venue);
@@ -115,7 +119,7 @@ function formatSportGame(event) {
             var aScore = away.score || '0';
             var gameStatus = status.type.completed ? 'FINAL' : (status.type.shortDetail || 'LIVE');
             var live = !status.type.completed;
-            scoreHTML = teamLogoChip(away.team, live ? '' : aRec) + ' <span class="sport-score-num">' + aScore + '</span>&nbsp;&nbsp;&nbsp;&nbsp;' + teamLogoChip(home.team, live ? '' : hRec) + ' <span class="sport-score-num">' + hScore + '</span>&nbsp;&nbsp;&nbsp;<span class="sport-status">' + gameStatus + '</span>';
+            scoreHTML = teamLogoChip(away.team, live ? '' : aRec, aRank) + ' <span class="sport-score-num">' + aScore + '</span>&nbsp;&nbsp;&nbsp;&nbsp;' + teamLogoChip(home.team, live ? '' : hRec, hRank) + ' <span class="sport-score-num">' + hScore + '</span>&nbsp;&nbsp;&nbsp;<span class="sport-status">' + gameStatus + '</span>';
 
             var sub = [];
             if (status.type.completed) {
@@ -143,21 +147,44 @@ function formatSportGame(event) {
 }
 
 var sportsGames = [];
+var sportsRawData = null;
 var sportsGameIdx = 0;
 var sportsRotateInterval = null;
 var leagueLogos = {
-    'NFL': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nfl.png',
-    'NBA': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nba.png',
-    'MLB': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/mlb.png',
-    'NHL': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nhl.png',
-    'EPL': 'https://a.espncdn.com/i/leaguelogos/soccer/500-dark/23.png',
+    'NFL':   'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nfl.png',
+    'NBA':   'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nba.png',
+    'MLB':   'https://a.espncdn.com/i/teamlogos/leagues/500-dark/mlb.png',
+    'NHL':   'https://a.espncdn.com/i/teamlogos/leagues/500-dark/nhl.png',
+    'EPL':   'https://a.espncdn.com/i/leaguelogos/soccer/500-dark/23.png',
+    'NCAAB': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/mens-college-basketball.png',
+    'NCAAW': 'https://a.espncdn.com/i/teamlogos/leagues/500-dark/womens-college-basketball.png',
+    'WNBA':  'https://a.espncdn.com/i/teamlogos/leagues/500-dark/wnba.png',
+    'PWHL':  'https://a.espncdn.com/i/teamlogos/leagues/500-dark/pwhl.png',
+    'WBC':   'https://a.espncdn.com/i/teamlogos/leagues/500-dark/wbc.png',
 };
 var leagueBadgeColors = {
-    'NFL': '#013369',
-    'NBA': '#C9082A',
-    'MLB': '#002D72',
-    'NHL': '#041E42',
-    'EPL': '#3D195B',
+    'NFL':   '#013369',
+    'NBA':   '#C9082A',
+    'MLB':   '#002D72',
+    'NHL':   '#041E42',
+    'EPL':   '#3D195B',
+    'NCAAB': '#C84B00',
+    'NCAAW': '#8B0057',
+    'WNBA':  '#F05323',
+    'PWHL':  '#6633CC',
+    'WBC':   '#BF0A30',
+};
+var leagueTickerColors = {
+    'NFL':   '#01213f',
+    'NBA':   '#5a0412',
+    'MLB':   '#001c47',
+    'NHL':   '#000000',
+    'EPL':   '#220e33',
+    'NCAAB': '#6b2700',
+    'NCAAW': '#4d002f',
+    'WNBA':  '#7a2a10',
+    'PWHL':  '#3d1f7a',
+    'WBC':   '#6b0016',
 };
 
 function showSportsGame(idx) {
@@ -167,7 +194,8 @@ function showSportsGame(idx) {
     var $detail = $('#crawl .sports-ticker .sports-detail');
     var $counter = $('#crawl .sports-ticker .sports-counter');
     $score.add($detail).fadeOut(200, function() {
-        $badge.css('background', leagueBadgeColors[game.league] || '#c8102e');
+        var badgeColor = leagueBadgeColors[game.league] || '#c8102e';
+        $badge.css('background', badgeColor);
         var logoUrl = leagueLogos[game.league] || game.leagueLogo;
         if (logoUrl) {
             $badge.html('<img class="league-logo" src="' + logoUrl + '" alt="' + game.league + '">');
@@ -181,28 +209,42 @@ function showSportsGame(idx) {
     });
 }
 
+function scheduleNextSportsGame() {
+    var duration = sportsGames[sportsGameIdx] ? sportsGames[sportsGameIdx].duration : 5000;
+    sportsRotateInterval = setTimeout(function() {
+        if (sportsGames.length === 0) return;
+        sportsGameIdx = (sportsGameIdx + 1) % sportsGames.length;
+        showSportsGame(sportsGameIdx);
+        scheduleNextSportsGame();
+    }, duration);
+}
+
 function sportsTickerStart() {
     $.getJSON('/sports', function(leagues) {
+        sportsRawData = leagues;
         sportsGames = [];
         leagues.forEach(function(leagueData) {
             if (!leagueData.events || leagueData.events.length === 0) return;
+            var leagueGames = [];
             leagueData.events.forEach(function(event) {
                 var g = formatSportGame(event);
-                if (g) sportsGames.push({ league: leagueData.league, leagueLogo: leagueData.logo || null, score: g.score, detail: g.detail });
+                if (g) leagueGames.push({ league: leagueData.league, leagueLogo: leagueData.logo || null, score: g.score, detail: g.detail });
+            });
+            var duration = Math.floor(45000 / leagueGames.length);
+            leagueGames.forEach(function(game) {
+                game.duration = duration;
+                sportsGames.push(game);
             });
         });
         if (sportsGames.length === 0) {
             $('#crawl .sports-ticker').fadeOut(300);
             return;
         }
+        if (sportsRotateInterval) clearTimeout(sportsRotateInterval);
         sportsGameIdx = 0;
         $('#crawl .sports-ticker').fadeIn(0);
         showSportsGame(sportsGameIdx);
-        if (sportsRotateInterval) clearInterval(sportsRotateInterval);
-        sportsRotateInterval = setInterval(function() {
-            sportsGameIdx = (sportsGameIdx + 1) % sportsGames.length;
-            showSportsGame(sportsGameIdx);
-        }, 5000);
+        scheduleNextSportsGame();
     }).fail(function() {
         $('#crawl .sports-ticker').fadeOut(300);
     });
